@@ -17,7 +17,7 @@ This documentation provides details on all endpoints, authentication methods, an
 
 ### 2. API Key (for `/api/pos`)
 - **Header:** `x-api-key: <your-api-key>`
-- **Default Key:** `teasy-secret-key-123` (Change this in production via ENV `API_KEY`)
+- **Default Key:** `GwabsTeasy123456` (Change this in production via ENV `API_KEY`)
 
 ---
 
@@ -118,7 +118,7 @@ Adds a new POS device to the system.
 
 #### Request Header:
 ```http
-x-api-key: teasy-secret-key-123
+x-api-key: GwabsTeasy123456
 Content-Type: application/json
 ```
 
@@ -133,20 +133,31 @@ Content-Type: application/json
 #### Success Response (200 OK):
 ```json
 {
+  "status": "success",
   "message": "Device added successfully",
   "device": {
-    "POS Serial": "NEW_POS_SERIAL_001",
-    "Passcode": "Secret123",
-    "Agent First Name": "ADDED VIA API",
-    "Current Balance": "0"
+    "serial": "NEW_POS_SERIAL_001",
+    "passcode": "Secret123"
   }
 }
 ```
 
 #### Error Responses:
-- **400 Bad Request:** Missing serial or passcode.
+- **400 Bad Request:**
+  ```json
+  {
+    "status": "failed",
+    "message": "Serial and Passcode are required"
+  }
+  ```
 - **401 Unauthorized:** Invalid or missing API Key.
-- **409 Conflict:** Device with this serial already exists.
+- **409 Conflict:**
+  ```json
+  {
+    "status": "failed",
+    "message": "Device with this serial already exists"
+  }
+  ```
 
 ---
 
@@ -158,7 +169,7 @@ Retrieves the passcode for a specific serial number.
 
 #### Request Header:
 ```http
-x-api-key: teasy-secret-key-123
+x-api-key: GwabsTeasy123456
 ```
 
 #### Example Request:
@@ -167,11 +178,21 @@ x-api-key: teasy-secret-key-123
 #### Success Response (200 OK):
 ```json
 {
-  "serial": "NEW_POS_SERIAL_001",
-  "passcode": "Secret123"
+  "status": "success",
+  "message": "Device found",
+  "data": {
+    "serial": "NEW_POS_SERIAL_001",
+    "passcode": "Secret123"
+  }
 }
 ```
 
 #### Error Responses:
 - **401 Unauthorized:** Invalid or missing API Key.
-- **404 Not Found:** Device not found.
+- **404 Not Found:**
+  ```json
+  {
+    "status": "failed",
+    "message": "Device not found"
+  }
+  ```

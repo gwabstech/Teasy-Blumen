@@ -8,7 +8,7 @@ const YAML = require("yamljs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, "db.json");
-const API_KEY = process.env.API_KEY || "teasy-secret-key-123";
+const API_KEY = process.env.API_KEY || "GwabsTeasy123456";
 
 // Swagger Setup
 const swaggerDocument = YAML.load(path.join(__dirname, "docs/swagger.yaml"));
@@ -71,7 +71,10 @@ function generateToken() {
 app.post("/api/pos", checkApiKey, (req, res) => {
   const { serial, passcode } = req.body;
   if (!serial || !passcode) {
-    return res.status(400).json({ error: "Serial and Passcode are required" });
+    return res.status(400).json({ 
+      status: "failed",
+      message: "Serial and Passcode are required" 
+    });
   }
 
   const devices = readDb();
@@ -79,7 +82,10 @@ app.post("/api/pos", checkApiKey, (req, res) => {
   // Check if exists
   const exists = devices.find(d => d["POS Serial"] === serial);
   if (exists) {
-    return res.status(409).json({ error: "Device with this serial already exists" });
+    return res.status(409).json({ 
+      status: "failed",
+      message: "Device with this serial already exists" 
+    });
   }
 
   const newDevice = {
@@ -91,9 +97,19 @@ app.post("/api/pos", checkApiKey, (req, res) => {
 
   devices.push(newDevice);
   if (writeDb(devices)) {
-    return res.json({ message: "Device added successfully", device: newDevice });
+    return res.json({ 
+      status: "success",
+      message: "Device added successfully", 
+      device: {
+        serial: newDevice["POS Serial"],
+        passcode: newDevice["Passcode"]
+      }
+    });
   } else {
-    return res.status(500).json({ error: "Failed to save device" });
+    return res.status(500).json({ 
+      status: "failed",
+      message: "Failed to save device" 
+    });
   }
 });
 
@@ -107,11 +123,18 @@ app.get("/api/pos/:serial", checkApiKey, (req, res) => {
 
   if (device) {
     return res.json({ 
-      serial: device["POS Serial"], 
-      passcode: device["Passcode"] 
+      status: "success",
+      message: "Device found",
+      data: {
+        serial: device["POS Serial"], 
+        passcode: device["Passcode"] 
+      }
     });
   } else {
-    return res.status(404).json({ error: "Device not found" });
+    return res.status(404).json({ 
+      status: "failed",
+      message: "Device not found" 
+    });
   }
 });
 

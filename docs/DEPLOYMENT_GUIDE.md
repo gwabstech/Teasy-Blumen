@@ -56,7 +56,7 @@ _(The `exit` command will take you back to your local machine)._
 From your **local machine** (where the project files are), run this command to copy the files to the server:
 
 ```bash
-scp -r Dockerfile docker-compose.yml package.json server.js db.json "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
+scp -r Dockerfile docker-compose.yml package.json server.js db.json docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
 ```
 
 _Enter the password: `8nJIu6GH8` again._
@@ -73,6 +73,7 @@ Navigate to the directory and start the app:
 
 ```bash
 cd ~/teasy-pos
+sudo docker-compose down  # Stop any existing instance
 sudo docker-compose up -d --build
 ```
 
@@ -94,11 +95,14 @@ sudo ufw allow 3000
 
 Then access it via browser or Postman at: `http://178.128.35.119:3000/`
 
+**Swagger Documentation:**
+You can access the interactive API docs at: `http://178.128.35.119:3000/api-docs`
+
 ## API Usage
 
 > **Security Note:** All requests to `/api/pos` endpoints now require an API Key.
 >
-> **Header:** `x-api-key: teasy-secret-key-123`
+> **Header:** `x-api-key: GwabsTeasy123456`
 > *(You can change this key by setting the `API_KEY` environment variable in `docker-compose.yml`)*
 
 ### 1. Add a POS Device
@@ -107,7 +111,7 @@ Then access it via browser or Postman at: `http://178.128.35.119:3000/`
 
 **Headers:**
 - `Content-Type: application/json`
-- `x-api-key: teasy-secret-key-123`
+- `x-api-key: GwabsTeasy123456`
 
 **Body:**
 
@@ -123,7 +127,7 @@ Then access it via browser or Postman at: `http://178.128.35.119:3000/`
 ```bash
 curl -X POST http://178.128.35.119:3000/api/pos \
      -H "Content-Type: application/json" \
-     -H "x-api-key: teasy-secret-key-123" \
+     -H "x-api-key: GwabsTeasy123456" \
      -d '{"serial": "NEW_SERIAL_123", "passcode": "SecretPass"}'
 ```
 
@@ -132,11 +136,11 @@ curl -X POST http://178.128.35.119:3000/api/pos \
 **Endpoint:** `GET /api/pos/:serial`
 
 **Headers:**
-- `x-api-key: teasy-secret-key-123`
+- `x-api-key: GwabsTeasy123456`
 
 **Example:**
 ```bash
-curl -H "x-api-key: teasy-secret-key-123" http://178.128.35.119:3000/api/pos/NEW_SERIAL_123
+curl -H "x-api-key: GwabsTeasy123456" http://178.128.35.119:3000/api/pos/NEW_SERIAL_123
 ```
 
 ---

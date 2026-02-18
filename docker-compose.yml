@@ -8,5 +8,5 @@ services:
     volumes:
       - ./db.json:/usr/src/app/db.json
     environment:
-      - API_KEY=GwabsTeasy123456  # CHANGE THIS!
+      - API_KEY=GwabsTeasy123456
     restart: unless-stopped

@@ -50,6 +50,27 @@ components:
           type: string
           description: The passcode for the device
           example: "Secret123"
+    StandardResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        message:
+          type: string
+          example: "Operation successful"
+    PosResponse:
+      allOf:
+        - $ref: "#/components/schemas/StandardResponse"
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                serial:
+                  type: string
+                passcode:
+                  type: string
 
 paths:
   /api/login:
@@ -128,6 +149,20 @@ paths:
       responses:
         "200":
           description: Device added successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/StandardResponse"
+                  - type: object
+                    properties:
+                      device:
+                        type: object
+                        properties:
+                          serial:
+                            type: string
+                          passcode:
+                            type: string
         "400":
           description: Missing serial or passcode
         "401":
@@ -156,12 +191,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  serial:
-                    type: string
-                  passcode:
-                    type: string
+                $ref: "#/components/schemas/PosResponse"
         "401":
           description: Invalid API Key
         "404":
