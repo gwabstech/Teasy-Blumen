@@ -1,193 +1,81 @@
-# Deployment Guide for Teasy POS API
+# Teasy POS Deployment Guide
 
-This guide will walk you through deploying the Teasy POS API to your Linux server (`178.128.35.119`).
+This guide provides simple, step-by-step instructions for deploying your local Teasy POS server to the production server.
 
-## Prerequisites
+### 1. Prerequisite: Stop Local Server (If Running)
+If you have `npm start` running locally, stop it using `Ctrl + C`.
 
-You need `ssh` and `scp` installed on your local machine (Windows PowerShell usually has these).
+---
 
-## Step 1: Connect to the Server
-
-Open your terminal (PowerShell or Command Prompt) and connect to the server:
+### 2. Connect and Prepare Server (Local Machine)
+First, make sure the project directory exists on the server. Run this in your terminal:
 
 ```bash
 ssh abubakar@178.128.35.119
 ```
+*Password: `8nJIu6GH8`*
 
-_Enter the password: `8nJIu6GH8` when prompted._
-
-## Step 2: Install Docker (if not installed)
-
-Run the following commands on the server to install Docker and Docker Compose:
-
-```bash
-# Update packages
-sudo apt-get update
-
-# Install Docker
-sudo apt-get install -y docker.io
-
-# Install Docker Compose
-sudo apt-get install -y docker-compose
-
-# Start and enable Docker
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Add user to docker group (optional, avoids using sudo for docker commands)
-sudo usermod -aG docker $USER
-```
-
-_(You might need to log out and log back in for the group change to take effect)._
-
-## Step 3: Prepare the Directory
-
-On the server, create a directory for the app:
-
+Once logged in, run:
 ```bash
 mkdir -p ~/teasy-pos
 exit
 ```
 
-_(The `exit` command will take you back to your local machine)._
+---
 
-## Step 4: Upload Project Files
+### 3. Upload Files (THE CRITICAL STEP)
+**Run this from your local project folder (where `package.json` is).**
 
-### Option A: First Time Deployment (Includes Database)
-Use this if you are deploying for the **first time**.
+#### Option A: Is this the VERY FIRST time? (Include Database)
+Use this only if the server is empty. It uploads your local `db.json`.
+
 ```bash
 scp -r Dockerfile docker-compose.yml package.json server.js db.json docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
 ```
+*Password: `8nJIu6GH8`*
 
-### Option B: Updating Code (Protects Database)
-Use this for **updates**. It excludes `db.json` so you don't overwrite your production data.
+#### Option B: Is this an UPDATE? (PROTECT Database)
+Use this if the app is already live and has data. **It safeguards your production database.**
+
 ```bash
 scp -r Dockerfile docker-compose.yml package.json server.js docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
 ```
-*Enter the password: `8nJIu6GH8` again.*
+*Password: `8nJIu6GH8`*
 
-## Step 5: Run the Application
+---
 
+### 4. Start the Application on Server
 Log back into the server:
 
 ```bash
 ssh abubakar@178.128.35.119
 ```
+*Password: `8nJIu6GH8`*
 
-Navigate to the directory and start the app:
+On the server, run these commands to restart the app:
 
 ```bash
 cd ~/teasy-pos
-sudo docker-compose down  # Stop any existing instance
+
+# Stop existing version (if any)
+sudo docker-compose down
+
+# Build and start new version
 sudo docker-compose up -d --build
-```
-
-The application is now running in the background!
-
-## Step 6: Verify Deployment
-
-You can test if it's working by running this check on the server:
-
-```bash
-curl http://localhost:3000/api/devices
-```
-
-To access it from the internet, you might need to allow port 3000 on the firewall:
-
-```bash
-sudo ufw allow 3000
-```
-
-Then access it via browser or Postman at: `http://178.128.35.119:3000/`
-
-**Swagger Documentation:**
-You can access the interactive API docs at: `http://178.128.35.119:3000/api-docs`
-
-## API Usage
-
-> **Security Note:** All requests to `/api/pos` endpoints now require an API Key.
->
-> **Header:** `x-api-key: GwabsTeasy123456`
-> *(You can change this key by setting the `API_KEY` environment variable in `docker-compose.yml`)*
-
-### 1. Add a POS Device
-
-**Endpoint:** `POST /api/pos`
-
-**Headers:**
-- `Content-Type: application/json`
-- `x-api-key: GwabsTeasy123456`
-
-**Body:**
-
-```json
-{
-  "serial": "NEW_SERIAL_123",
-  "passcode": "SecretPass"
-}
-```
-
-**Example cURL:**
-
-```bash
-curl -X POST http://178.128.35.119:3000/api/pos \
-     -H "Content-Type: application/json" \
-     -H "x-api-key: GwabsTeasy123456" \
-     -d '{"serial": "NEW_SERIAL_123", "passcode": "SecretPass"}'
-```
-
-### 2. Get Passcode by Serial
-
-**Endpoint:** `GET /api/pos/:serial`
-
-**Headers:**
-- `x-api-key: GwabsTeasy123456`
-
-**Example:**
-```bash
-curl -H "x-api-key: GwabsTeasy123456" http://178.128.35.119:3000/api/pos/NEW_SERIAL_123
 ```
 
 ---
 
-## Alternative: Deploy via Docker Hub (Pre-built Image)
-Use this method if you want to build the payload on your local machine (using Docker Desktop) and just run it on the server.
+### 5. Verify & Done!
+Check if it's working by running this command on the server:
 
-### 1. Build and Push (Local Machine)
-You need a [Docker Hub](https://hub.docker.com/) account.
+```bash
+curl http://localhost:3000/api/devices
+```
+You should see a JSON response.
 
-1. **Login to Docker:**
-   ```bash
-   docker login
-   ```
-2. **Build the Image:**
-   (Replace `yourusername` with your Docker Hub username)
-   ```bash
-   docker build -t yourusername/teasy-pos:latest .
-   ```
-3. **Push to Docker Hub:**
-   ```bash
-   docker push yourusername/teasy-pos:latest
-   ```
+**Public URLs:**
+- **API Base:** `http://178.128.35.119:3000/`
+- **Documentation:** `http://178.128.35.119:3000/api-docs`
 
-### 2. Run on Server
-1. **Connect to Server:**
-   ```bash
-   ssh abubakar@178.128.35.119
-   ```
-2. **Pull and Run:**
-   ```bash
-   # Pull the latest image
-   sudo docker pull yourusername/teasy-pos:latest
-
-   # Run the container
-   sudo docker run -d \
-     --name teasy-pos \
-     -p 3000:3000 \
-     --restart unless-stopped \
-     -e API_KEY=your_secret_key \
-     -v ~/teasy-pos/db.json:/usr/src/app/db.json \
-     yourusername/teasy-pos:latest
-   ```
-   *Note: Ensure `~/teasy-pos/db.json` exists on the server for data persistence.*
-
+**That's it! You are live.**
