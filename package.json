@@ -1,0 +1,12 @@
+{
+  "name": "teasy-pos-server",
+  "version": "1.0.0",
+  "description": "Minimal server for Teasy Blumen POS data (local development)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
