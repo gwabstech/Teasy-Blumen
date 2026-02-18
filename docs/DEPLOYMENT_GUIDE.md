@@ -138,3 +138,47 @@ curl -X POST http://178.128.35.119:3000/api/pos \
 ```bash
 curl -H "x-api-key: teasy-secret-key-123" http://178.128.35.119:3000/api/pos/NEW_SERIAL_123
 ```
+
+---
+
+## Alternative: Deploy via Docker Hub (Pre-built Image)
+Use this method if you want to build the payload on your local machine (using Docker Desktop) and just run it on the server.
+
+### 1. Build and Push (Local Machine)
+You need a [Docker Hub](https://hub.docker.com/) account.
+
+1. **Login to Docker:**
+   ```bash
+   docker login
+   ```
+2. **Build the Image:**
+   (Replace `yourusername` with your Docker Hub username)
+   ```bash
+   docker build -t yourusername/teasy-pos:latest .
+   ```
+3. **Push to Docker Hub:**
+   ```bash
+   docker push yourusername/teasy-pos:latest
+   ```
+
+### 2. Run on Server
+1. **Connect to Server:**
+   ```bash
+   ssh abubakar@178.128.35.119
+   ```
+2. **Pull and Run:**
+   ```bash
+   # Pull the latest image
+   sudo docker pull yourusername/teasy-pos:latest
+
+   # Run the container
+   sudo docker run -d \
+     --name teasy-pos \
+     -p 3000:3000 \
+     --restart unless-stopped \
+     -e API_KEY=your_secret_key \
+     -v ~/teasy-pos/db.json:/usr/src/app/db.json \
+     yourusername/teasy-pos:latest
+   ```
+   *Note: Ensure `~/teasy-pos/db.json` exists on the server for data persistence.*
+
