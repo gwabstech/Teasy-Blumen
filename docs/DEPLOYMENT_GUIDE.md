@@ -53,13 +53,18 @@ _(The `exit` command will take you back to your local machine)._
 
 ## Step 4: Upload Project Files
 
-From your **local machine** (where the project files are), run this command to copy the files to the server:
-
+### Option A: First Time Deployment (Includes Database)
+Use this if you are deploying for the **first time**.
 ```bash
 scp -r Dockerfile docker-compose.yml package.json server.js db.json docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
 ```
 
-_Enter the password: `8nJIu6GH8` again._
+### Option B: Updating Code (Protects Database)
+Use this for **updates**. It excludes `db.json` so you don't overwrite your production data.
+```bash
+scp -r Dockerfile docker-compose.yml package.json server.js docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
+```
+*Enter the password: `8nJIu6GH8` again.*
 
 ## Step 5: Run the Application
 

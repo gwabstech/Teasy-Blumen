@@ -11,9 +11,11 @@ This document outlines the steps to deploy the finalized Teasy POS API to the pr
 ## 2. Deployment Steps (Remote Build Method)
 
 ### Step 1: Update Codebase on Server
-From your local machine, run:
+**IMPORTANT:** Do not copy `db.json` if you want to keep existing production data.
+
+From your local machine, run (excludes `db.json`):
 ```bash
-scp -r Dockerfile docker-compose.yml package.json server.js db.json docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
+scp -r Dockerfile docker-compose.yml package.json server.js docs "teasy devices.html" abubakar@178.128.35.119:~/teasy-pos/
 ```
 
 ### Step 2: Restart Service on Server
