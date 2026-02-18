@@ -2,10 +2,17 @@ const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
 const fs = require("fs");
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, "db.json");
 const API_KEY = process.env.API_KEY || "teasy-secret-key-123";
+
+// Swagger Setup
+const swaggerDocument = YAML.load(path.join(__dirname, "docs/swagger.yaml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));

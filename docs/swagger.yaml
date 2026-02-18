@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: Teasy POS API
+  description: API for managing POS devices and retrieving passcodes.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: http://178.128.35.119:3000
+    description: Production server
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Device:
+      type: object
+      properties:
+        POS Serial:
+          type: string
+          example: "P260300035084"
+        Passcode:
+          type: string
+          example: "205202"
+        Agent First Name:
+          type: string
+          example: "BLUMEN TECHNOLOGIES LTD"
+        Current Balance:
+          type: string
+          example: "0"
+    NewDevice:
+      type: object
+      required:
+        - serial
+        - passcode
+      properties:
+        serial:
+          type: string
+          description: The serial number of the POS device
+          example: "NEW_SERIAL_123"
+        passcode:
+          type: string
+          description: The passcode for the device
+          example: "Secret123"
+
+paths:
+  /api/login:
+    post:
+      summary: User Login
+      description: Authenticates a user and returns a Bearer token.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "blumen"
+                password:
+                  type: string
+                  example: "123456"
+      responses:
+        "200":
+          description: Successful Login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Invalid credentials
+
+  /api/devices:
+    get:
+      summary: Get All Devices or Search by Serial
+      description: Retrieves a list of all devices (requires Bearer token) or searches for a specific device by serial (public).
+      tags:
+        - Devices
+      parameters:
+        - in: query
+          name: serial
+          schema:
+            type: string
+          description: Optional serial number to search for (public access if provided)
+      security:
+        - BearerAuth: []
+        - {}
+      responses:
+        "200":
+          description: A list of devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+        "401":
+          description: Unauthorized (if listing all devices without token)
+
+  /api/pos:
+    post:
+      summary: Add a new POS Device
+      description: Adds a new POS device to the system. Requires API Key.
+      tags:
+        - POS Management
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewDevice"
+      responses:
+        "200":
+          description: Device added successfully
+        "400":
+          description: Missing serial or passcode
+        "401":
+          description: Invalid API Key
+        "409":
+          description: Device already exists
+
+  /api/pos/{serial}:
+    get:
+      summary: Get POS Passcode
+      description: Retrieves the passcode for a specific serial number. Requires API Key.
+      tags:
+        - POS Management
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: serial
+          required: true
+          schema:
+            type: string
+          description: The serial number of the POS device
+      responses:
+        "200":
+          description: Device passcode info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serial:
+                    type: string
+                  passcode:
+                    type: string
+        "401":
+          description: Invalid API Key
+        "404":
+          description: Device not found
