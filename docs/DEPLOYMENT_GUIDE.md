@@ -74,8 +74,39 @@ curl http://localhost:3000/api/devices
 ```
 You should see a JSON response.
 
-**Public URLs:**
-- **API Base:** `http://178.128.35.119:3000/`
-- **Documentation:** `http://178.128.35.119:3000/api-docs`
+### 6. Managing the Server
 
-**That's it! You are live.**
+Here are the common commands you'll need to manage your running application.
+
+**Connect to the server first:**
+```bash
+ssh abubakar@178.128.35.119
+cd ~/teasy-pos
+```
+
+#### A. Restart the Application
+If the server is acting up or you just want a fresh start:
+```bash
+sudo docker-compose restart
+```
+
+#### B. Stop the Application
+To shut everything down:
+```bash
+sudo docker-compose down
+```
+
+#### C. View Logs (Debug Issues)
+To see what's happening inside the app (errors, requests, etc.):
+```bash
+sudo docker-compose logs -f
+```
+*(Press `Ctrl + C` to exit the logs)*
+
+#### D. Update the Application (Safe Update)
+1. **Local Machine:** Run the "Option B" upload command (excludes `db.json`).
+2. **Server:** Run:
+   ```bash
+   sudo docker-compose up -d --build
+   ```
+   *(This rebuilds the app with new code but keeps your database intact).*
